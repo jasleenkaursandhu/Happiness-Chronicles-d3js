@@ -1,0 +1,21 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+#visualization {
+    width: 100%;
+    height: 600px; /* Adjust height as needed */
+    margin-top: 20px;
+}
+
+.dot {
+    fill: steelblue;
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
