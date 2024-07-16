@@ -16,7 +16,8 @@ var path = d3.geoPath().projection(projection);
 
 // Function to generate random shades of red based on score value
 function getRandomColor(score) {
-    // Choose a shade of red based on the score (assuming score is between 0 and 10)
+    // Choose a shade of red based on the score .
+    // Darker red shades for higher scores.
     var redScale = d3.scaleLinear()
         .domain([0, 10])
         .range(["#fee5d9", "#a50f15"]); // Light red to dark red
@@ -183,15 +184,38 @@ Promise.all([
         svg.append("g")
             .call(d3.axisLeft(y));
 
+        // Define the div for the tooltip
+        var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
         svg.selectAll(".bar")
-            .data([selectedData.Score_2016, selectedData.Score_2017, selectedData.Score_2018, selectedData.Score_2019])
+            .data([
+                { year: "2016", score: selectedData.Score_2016 },
+                { year: "2017", score: selectedData.Score_2017 },
+                { year: "2018", score: selectedData.Score_2018 },
+                { year: "2019", score: selectedData.Score_2019 }
+            ])
             .enter().append("rect")
             .attr("class", "bar")
-            .attr("x", function(d, i) { return x(i === 0 ? "2016" : i === 1 ? "2017" : i === 2 ? "2018" : "2019"); })
-            .attr("y", function(d) { return y(d); })
+            .attr("x", d => x(d.year))
+            .attr("y", d => y(d.score))
             .attr("width", x.bandwidth())
-            .attr("height", function(d) { return height - y(d); })
-            .style("fill", function(d, i) { return i === 0 ? "#fee5d9" : i === 1 ? "#fcae91" : i === 2 ? "#fb6a4a" : "#cb181d"; }); // Different shades of red for bars
+            .attr("height", d => height - y(d.score))
+            .style("fill", function(d, i) { return i === 0 ? "#fee5d9" : i === 1 ? "#fcae91" : i === 2 ? "#fb6a4a" : "#cb181d"; }) // Different shades of red for bars
+            .on("mouseover", function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html("Year: " + d.year + "<br/>Score: " + d.score)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
 
         svg.append("text")
             .attr("x", (width / 2))
@@ -214,4 +238,5 @@ Promise.all([
 }).catch(error => {
     console.error("Error loading data:", error);
 });
+
 
