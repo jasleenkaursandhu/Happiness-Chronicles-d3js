@@ -1,96 +1,100 @@
-// Load data
-d3.csv("2019.csv").then(function(data) {
-   // Convert numerical values from strings to numbers
-   data.forEach(function(d) {
-       d.Score = +d.Score; // Happiness score
-       d.GDP_Per_Capita = +d.GDP_Per_Capita; // GDP per capita
-       // Add more fields as needed for tooltips and annotations
-   });
+// Set up SVG and dimensions
+var width = 960, height = 600;
 
-   // Set up SVG and dimensions
-   var margin = { top: 20, right: 20, bottom: 50, left: 50 };
-   var width = 800 - margin.left - margin.right;
-   var height = 600 - margin.top - margin.bottom;
+var svg = d3.select("#visualization")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-   var svg = d3.select("#visualization")
-       .append("svg")
-       .attr("width", width + margin.left + margin.right)
-       .attr("height", height + margin.top + margin.bottom)
-       .append("g")
-       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var projection = d3.geoNaturalEarth1()
+    .scale(160)
+    .translate([width / 2, height / 2]);
 
-   // Define scales
-   var xScale = d3.scaleLinear()
-       .domain(d3.extent(data, function(d) { return d.GDP_Per_Capita; })).nice()
-       .range([0, width]);
+var path = d3.geoPath().projection(projection);
 
-   var yScale = d3.scaleLinear()
-       .domain(d3.extent(data, function(d) { return d.Score; })).nice()
-       .range([height, 0]);
+// Function to generate random shades of red based on score value
+function getRandomColor(score) {
+    // Choose a shade of red based on the score (assuming score is between 0 and 10)
+    var redScale = d3.scaleLinear()
+        .domain([0, 10])
+        .range(["#fee5d9", "#a50f15"]); // Light red to dark red
 
-   // Add axes
-   var xAxis = d3.axisBottom(xScale);
-   var yAxis = d3.axisLeft(yScale);
+    return redScale(score);
+}
 
-   svg.append("g")
-       .attr("class", "x axis")
-       .attr("transform", "translate(0," + height + ")")
-       .call(xAxis)
-       .append("text")
-       .attr("class", "label")
-       .attr("x", width)
-       .attr("y", -6)
-       .style("text-anchor", "end")
-       .text("GDP per Capita");
+// Load and process data
+Promise.all([
+    d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"),
+    d3.csv("2019_mapped.csv")
+]).then(function([geojson, data]) {
+    var dataMap = new Map();
+    data.forEach(function(d) {
+        dataMap.set(d["Country or region"], +d.Score);
+    });
 
-   svg.append("g")
-       .attr("class", "y axis")
-       .call(yAxis)
-       .append("text")
-       .attr("class", "label")
-       .attr("transform", "rotate(-90)")
-       .attr("y", 6)
-       .attr("dy", ".71em")
-       .style("text-anchor", "end")
-       .text("Happiness Score");
+    geojson.features.forEach(d => {
+        d.properties.Score = dataMap.get(d.properties.name) || 0;
+    });
 
-   // Add dots for countries
-   svg.selectAll(".dot")
-       .data(data)
-       .enter().append("circle")
-       .attr("class", "dot")
-       .attr("cx", function(d) { return xScale(d.GDP_Per_Capita); })
-       .attr("cy", function(d) { return yScale(d.Score); })
-       .attr("r", 5) // Adjust radius as needed
-       .on("mouseover", function(d) {
-           // Tooltip
-           var tooltip = d3.select("#tooltip")
-               .style("left", (d3.event.pageX + 10) + "px") // Adjust position offset as needed
-               .style("top", (d3.event.pageY - 15) + "px") // Adjust position offset as needed
-               .style("display", "inline-block")
-               .html("<strong>Country:</strong> " + d.Country + "<br>" +
-                     "<strong>Happiness Score:</strong> " + d.Score + "<br>" +
-                     "<strong>GDP per Capita:</strong> " + d.GDP_Per_Capita);
-       })
-       .on("mousemove", function(d) {
-           // Update tooltip position as mouse moves
-           d3.select("#tooltip")
-               .style("left", (d3.event.pageX + 10) + "px")
-               .style("top", (d3.event.pageY - 15) + "px");
-       })
-       .on("mouseout", function(d) {
-           // Hide tooltip
-           d3.select("#tooltip").style("display", "none");
-       });
+    // Assign colors to each country based on score
+    geojson.features.forEach(d => {
+        d.properties.fill = getRandomColor(d.properties.Score);
+    });
 
-   // Tooltip element
-   d3.select("body").append("div")
-       .attr("id", "tooltip")
-       .style("position", "absolute")
-       .style("z-index", "10")
-       .style("background", "#fff")
-       .style("padding", "10px")
-       .style("display", "none")
-       .style("border", "1px solid #aaa")
-       .style("border-radius", "5px");
+    // Draw the map
+    svg.append("g")
+        .selectAll("path")
+        .data(geojson.features)
+        .enter().append("path")
+        .attr("class", "country")
+        .attr("d", path)
+        .attr("fill", d => d.properties.fill)
+        .on("mouseover", function(event, d) {
+            const [x, y] = d3.pointer(event);
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("left", `${x + 10}px`)
+                .style("top", `${y + 10}px`)
+                .html(`<strong>${d.properties.name}</strong><br>Happiness Score: ${d.properties.Score || 'N/A'}`);
+        })
+        .on("mousemove", function(event) {
+            const [x, y] = d3.pointer(event);
+            d3.select(".tooltip")
+                .style("left", `${x + 10}px`)
+                .style("top", `${y + 10}px`);
+        })
+        .on("mouseout", function() {
+            d3.select(".tooltip").remove();
+        });
+
+    // Create a list of countries displayed beside the map
+    var countryList = d3.select("#country-list");
+
+    countryList.select("#country-list-title")
+        .text("Country List")
+        .style("color", "#8B0000") // Dark red color for the title
+        .style("font-weight", "bold") // Bold font for the title
+        .style("text-align", "center"); // Center-align the title
+
+    geojson.features.forEach(d => {
+        countryList.append("div")
+            .classed("country-item", true)
+            .text(d.properties.name)
+            .style("color", d.properties.fill) // Use country color for text color
+            .style("font-weight", "bold") // Make the country names bold for better visibility
+            .on("click", function() {
+                svg.selectAll(".country")
+                    .attr("fill", "#ccc"); // Reset all countries to gray
+
+                d3.select(this)
+                    .style("background-color", "lightblue"); // Highlight clicked country in the list
+
+                svg.selectAll(".country")
+                    .filter(function(f) { return f.properties.name === d.properties.name; })
+                    .attr("fill", d.properties.fill); // Highlight clicked country on the map
+            });
+    });
+
+}).catch(error => {
+    console.error("Error loading data:", error);
 });
