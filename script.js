@@ -98,3 +98,106 @@ Promise.all([
 }).catch(error => {
     console.error("Error loading data:", error);
 });
+
+// Load and process data
+Promise.all([
+    d3.csv("2018_mapped.csv"),
+    d3.csv("2019_mapped.csv")
+]).then(function([data2018, data2019]) {
+    // Merge datasets
+    var mergedData = mergeData(data2018, data2019);
+
+    // Function to merge data based on country or region
+    function mergeData(data2018, data2019) {
+        var merged = [];
+        data2018.forEach(d1 => {
+            var match = data2019.find(d2 => d2["Country or region"] === d1["Country or region"]);
+            if (match) {
+                var diff = +match.Score - +d1.Score;
+                merged.push({
+                    "Country": d1["Country or region"],
+                    "Score_2018": +d1.Score,
+                    "Score_2019": +match.Score,
+                    "Score_Difference": diff
+                });
+            }
+        });
+        return merged;
+    }
+
+    // Populate dropdown with country names
+    var select = d3.select("#country-select");
+    var countries = mergedData.map(d => d.Country);
+
+    select.selectAll("option")
+        .data(countries)
+        .enter().append("option")
+        .text(d => d);
+
+    // Default selected country (first in the list)
+    var selectedCountry = countries[0];
+
+    // Function to update bar chart based on selected country
+    function updateBarChart(country) {
+        var selectedData = mergedData.find(d => d.Country === country);
+
+        // Clear previous chart
+        d3.select("#chart").html("");
+
+        var margin = { top: 20, right: 20, bottom: 50, left: 80 };
+        var width = 600 - margin.left - margin.right;
+        var height = 400 - margin.top - margin.bottom;
+
+        var svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var x = d3.scaleBand()
+            .range([0, width])
+            .padding(0.1);
+
+        var y = d3.scaleLinear()
+            .range([height, 0]);
+
+        x.domain(["2018", "2019"]);
+        y.domain([0, d3.max([selectedData.Score_2018, selectedData.Score_2019])]);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        svg.selectAll(".bar")
+            .data([selectedData.Score_2018, selectedData.Score_2019])
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d, i) { return x(i === 0 ? "2018" : "2019"); })
+            .attr("y", function(d) { return y(d); })
+            .attr("width", x.bandwidth())
+            .attr("height", function(d) { return height - y(d); });
+
+        svg.append("text")
+            .attr("x", (width / 2))
+            .attr("y", 0 - (margin.top / 2))
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("text-decoration", "underline")
+            .text("Happiness Score Comparison (2018 vs 2019) for " + country);
+    }
+
+    // Initial chart render
+    updateBarChart(selectedCountry);
+
+    // Handle dropdown change
+    select.on("change", function() {
+        selectedCountry = d3.select(this).property("value");
+        updateBarChart(selectedCountry);
+    });
+
+}).catch(error => {
+    console.error("Error loading data:", error);
+});
