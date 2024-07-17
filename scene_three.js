@@ -92,9 +92,9 @@ Promise.all([
             // Clear previous chart
             d3.select("#factors-chart").html("");
 
-            var margin = { top: 50, right: 50, bottom: 50, left: 80 };
-            var width = 600 - margin.left - margin.right;
-            var height = 400 - margin.top - margin.bottom;
+            var width = 500, height = 400; // Adjusted width and height
+
+            var margin = { top: 50, right: 50, bottom: 100, left: 100 }; // Adjusted margins
 
             var svg = d3.select("#factors-chart")
                 .attr("width", width + margin.left + margin.right)
@@ -104,16 +104,21 @@ Promise.all([
 
             var x = d3.scaleBand()
                 .range([0, width])
-                .padding(0.1)
+                .padding(0.2) // Adjusted padding
                 .domain(Object.keys(factors));
 
             var y = d3.scaleLinear()
                 .range([height, 0])
-                .domain([0, d3.max(Object.values(factors))]);
-
+                .domain([0, d3.max(Object.values(factors)) + 0.2]); // Adjusted domain for y-scale
+            
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(x));
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)") // Rotate x-axis labels
+                .style("text-anchor", "end")
+                .attr("dx", "-0.5em")
+                .attr("dy", "0.5em");
 
             svg.append("g")
                 .call(d3.axisLeft(y));
@@ -126,7 +131,7 @@ Promise.all([
                 .attr("y", d => y(d[1]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(d[1]))
-                .style("fill", "#69b3a2");
+                .style("fill", "maroon");
 
             svg.selectAll(".bar-label")
                 .data(Object.entries(factors))
@@ -141,7 +146,7 @@ Promise.all([
                 .attr("x", (width / 2))
                 .attr("y", 0 - (margin.top / 2))
                 .attr("text-anchor", "middle")
-                .style("font-size", "16px")
+                .style("font-size", "18px")
                 .style("text-decoration", "underline")
                 .text("Factors Contributing to Happiness Score in " + year + " for " + country);
         }
