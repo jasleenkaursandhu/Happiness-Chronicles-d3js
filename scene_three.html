@@ -5,15 +5,42 @@
     <title>Happiness Report - Scene Three</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 600px;
+            margin: 20px auto;
+        }
+        h1 {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .chart {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+        .form-group {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div id="visualization">
         <h1>Analysing Factors Contributing to Happiness Score</h1>
         <div id="scene3">
-            <label for="year-select">Select a year:</label>
-            <select id="year-select"></select>
-            <label for="country-select-scene3">Select a country:</label>
-            <select id="country-select-scene3"></select>
+            <div class="form-group">
+                <label for="year-select">Select a Year:</label>
+                <select id="year-select"></select>
+            </div>
+            <div class="form-group">
+                <label for="country-select-scene3">Select a Country:</label>
+                <select id="country-select-scene3"></select>
+            </div>
             <svg id="factors-chart"></svg>
         </div>
     </div>

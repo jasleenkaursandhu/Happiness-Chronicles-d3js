@@ -19,18 +19,12 @@ Promise.all([
             var match2018 = data2018.find(d3 => d3["Country or region"] === d1["Country or region"]);
             var match2019 = data2019.find(d4 => d4["Country or region"] === d1["Country or region"]);
             if (match2017 && match2018 && match2019) {
-                var diff1716 = +match2017.Score - +d1.Score;
-                var diff1816 = +match2018.Score - +d1.Score;
-                var diff1916 = +match2019.Score - +d1.Score;
                 merged.push({
                     "Country": d1["Country or region"],
                     "Score_2016": +d1.Score,
                     "Score_2017": +match2017.Score,
                     "Score_2018": +match2018.Score,
-                    "Score_2019": +match2019.Score,
-                    "Score_Difference_2017": diff1716,
-                    "Score_Difference_2018": diff1816,
-                    "Score_Difference_2019": diff1916
+                    "Score_2019": +match2019.Score
                 });
             }
         });
@@ -49,8 +43,8 @@ Promise.all([
     // Default selected country (first in the list)
     var selectedCountry = countries[0];
 
-    // Function to update bar chart based on selected country
-    function updateBarChart(country) {
+    // Function to update line chart based on selected country
+    function updateLineChart(country) {
         var selectedData = mergedData.find(d => d.Country === country);
 
         // Clear previous chart
@@ -66,15 +60,27 @@ Promise.all([
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var x = d3.scaleBand()
-            .range([0, width])
-            .padding(0.1);
+        var x = d3.scalePoint()
+            .domain(["2016", "2017", "2018", "2019"])
+            .range([0, width]);
 
         var y = d3.scaleLinear()
+            .domain([
+                d3.min([selectedData.Score_2016, selectedData.Score_2017, selectedData.Score_2018, selectedData.Score_2019]) - 0.1,
+                d3.max([selectedData.Score_2016, selectedData.Score_2017, selectedData.Score_2018, selectedData.Score_2019]) + 0.1
+            ])
             .range([height, 0]);
 
-        x.domain(["2016", "2017", "2018", "2019"]);
-        y.domain([0, d3.max([selectedData.Score_2016, selectedData.Score_2017, selectedData.Score_2018, selectedData.Score_2019])]);
+        var line = d3.line()
+            .x(d => x(d.year))
+            .y(d => y(d.score));
+
+        var data = [
+            { year: "2016", score: selectedData.Score_2016 },
+            { year: "2017", score: selectedData.Score_2017 },
+            { year: "2018", score: selectedData.Score_2018 },
+            { year: "2019", score: selectedData.Score_2019 }
+        ];
 
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
@@ -88,27 +94,28 @@ Promise.all([
             .attr("class", "tooltip")
             .style("opacity", 0);
 
-        svg.selectAll(".bar")
-            .data([
-                { year: "2016", score: selectedData.Score_2016 },
-                { year: "2017", score: selectedData.Score_2017 },
-                { year: "2018", score: selectedData.Score_2018 },
-                { year: "2019", score: selectedData.Score_2019 }
-            ])
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => x(d.year))
-            .attr("y", d => y(d.score))
-            .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.score))
-            .style("fill", function(d, i) { return i === 0 ? "#fee5d9" : i === 1 ? "#fcae91" : i === 2 ? "#fb6a4a" : "#cb181d"; }) // Different shades of red for bars
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "#F4C2C2")  // Set line color to red
+            .attr("stroke-width", 2)
+            .attr("d", line);
+
+        svg.selectAll(".dot")
+            .data(data)
+            .enter().append("circle")
+            .attr("class", "dot")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y(d.score))
+            .attr("r", 5)
+            .attr("fill", "maroon")  // Set dot color to red
             .on("mouseover", function(event, d) {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html("Year: " + d.year + "<br/>Score: " + d.score)
+                tooltip.html("Year: " + d.year + "<br/>Score: " + d.score.toFixed(3))
                     .style("left", (event.pageX - 60) + "px")  // Center the tooltip
-                    .style("top", (event.pageY - 70) + "px");  // Position above the bar
+                    .style("top", (event.pageY - 70) + "px");  // Position above the point
             })
             .on("mouseout", function(d) {
                 tooltip.transition()
@@ -125,19 +132,15 @@ Promise.all([
             .text("Happiness Score Comparison (2016 - 2019) for " + country);
     }
 
-    // Initial call to update bar chart with default selected country
-    updateBarChart(selectedCountry);
+    // Initial call to update line chart with default selected country
+    updateLineChart(selectedCountry);
 
     // Event listener for dropdown change
     select.on("change", function() {
         var country = d3.select(this).property("value");
-        updateBarChart(country);
+        updateLineChart(country);
     });
 
 }).catch(error => {
     console.error("Error loading data:", error);
 });
-
-
-
-

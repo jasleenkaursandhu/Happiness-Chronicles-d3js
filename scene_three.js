@@ -127,7 +127,7 @@ Promise.all([
                 .selectAll("text")
                 .attr("transform", "rotate(-45)") // Rotate x-axis labels
                 .style("text-anchor", "end")
-                .attr("dx", "-0.5em")
+                .attr("dx", "0.2em")
                 .attr("dy", "0.5em");
 
             svg.append("g")
