@@ -26,7 +26,7 @@ df_2017.rename(columns=rename_columns, inplace=True)
 # Add missing columns with default values
 missing_columns = set(columns_2018) - set(df_2017.columns)
 for col in missing_columns:
-    df_2017[col] = None  # You can change 'None' to a more appropriate default value if needed
+    df_2017[col] = None  
 
 # Reorder columns to match 2018 dataset
 df_2017 = df_2017[columns_2018]
