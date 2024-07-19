@@ -1,5 +1,5 @@
 // Set up SVG and dimensions
-var width = 960, height = 600;
+var width = 960, height = 1000;
 
 var svg = d3.select("#visualization")
     .append("svg")
@@ -15,7 +15,7 @@ var projection = d3.geoNaturalEarth1()
 var path = d3.geoPath().projection(projection);
 
 // Function to generate random shades of red based on score value
-function getRandomColor(score) {
+function getColor(score) {
     // Choose a shade of red based on the score.
     // Darker red shades for higher scores.
     var redScale = d3.scaleLinear()
@@ -39,10 +39,25 @@ Promise.all([
         d.properties.Score = dataMap.get(d.properties.name) || 0;
     });
 
-    // Assign colors to each country based on score
-    geojson.features.forEach(d => {
-        d.properties.fill = getRandomColor(d.properties.Score);
-    });
+    // Populate dropdown with country names
+    var select = d3.select("#country-select");
+    var countries = Array.from(new Set(data.map(d => d["Country or region"])));
+    select.selectAll("option")
+        .data(["All Countries"].concat(countries))
+        .enter().append("option")
+        .text(d => d);
+
+    // Function to update map based on selected country
+    function updateMap(selectedCountry) {
+        svg.selectAll(".country")
+            .attr("fill", d => {
+                if (selectedCountry === "" || d.properties.name === selectedCountry) {
+                    return getColor(d.properties.Score);
+                } else {
+                    return "#ccc"; // Gray for non-selected countries
+                }
+            });
+    }
 
     // Draw the map
     svg.append("g")
@@ -51,14 +66,14 @@ Promise.all([
         .enter().append("path")
         .attr("class", "country")
         .attr("d", path)
-        .attr("fill", d => d.properties.fill)
+        .attr("fill", d => getColor(d.properties.Score))
         .on("mouseover", function(event, d) {
             const [x, y] = d3.pointer(event);
             const tooltip = d3.select("body").append("div")
                 .attr("class", "tooltip")
                 .style("left", `${x + 10}px`)
                 .style("top", `${y + 10}px`)
-                .html(`<strong>${d.properties.name}</strong><br>Happiness Score: ${d.properties.Score || 'N/A'}`);
+                .html(`<strong>${d.properties.name}</strong><br>Score: ${d.properties.Score || 'N/A'}`);
         })
         .on("mousemove", function(event) {
             const [x, y] = d3.pointer(event);
@@ -70,32 +85,10 @@ Promise.all([
             d3.select(".tooltip").remove();
         });
 
-    // Create a list of countries displayed beside the map
-    var countryList = d3.select("#country-list");
-
-    countryList.select("#country-list-title")
-        .text("Country List")
-        .style("color", "#8B0000") // Dark red color for the title
-        .style("font-weight", "bold") // Bold font for the title
-        .style("text-align", "center"); // Center-align the title
-
-    geojson.features.forEach(d => {
-        countryList.append("div")
-            .classed("country-item", true)
-            .text(d.properties.name)
-            .style("color", d.properties.fill) // Use country color for text color
-            .style("font-weight", "bold") // Make the country names bold for better visibility
-            .on("click", function() {
-                svg.selectAll(".country")
-                    .attr("fill", "#ccc"); // Reset all countries to gray
-
-                d3.select(this)
-                    .style("background-color", "lightblue"); // Highlight clicked country in the list
-
-                svg.selectAll(".country")
-                    .filter(function(f) { return f.properties.name === d.properties.name; })
-                    .attr("fill", d.properties.fill); // Highlight clicked country on the map
-            });
+    // Event listener for dropdown change
+    select.on("change", function() {
+        var country = d3.select(this).property("value");
+        updateMap(country === "All Countries" ? "" : country);
     });
 
 }).catch(error => {

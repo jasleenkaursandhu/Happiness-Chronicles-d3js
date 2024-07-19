@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Happiness Map</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 600px;
+            margin: 20px auto;
+            text-align: center; /* Center align content */
+        }
+        h1 {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        select {
+            padding: 5px;
+            font-size: 16px;
+        }
+        .country {
+            stroke: #fff;
+            stroke-width: 0.5;
+        }
+        .tooltip {
+            position: absolute;
+            background: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        .visualization {
+            width: 800px;
+            height: 600px;
+            margin: auto;
+        }
+        .color-scale {
+            margin-top: 20px;
+            text-align: left; /* Left align the color scale explanation */
+            margin-left: 20px;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .color-scale div {
+            display: flex;
+            align-items: center;
+        }
+        .color-box {
+            width: 50px;
+            height: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Overview of World Happiness Score</h1>
+
+        <div class="form-group">
+            <label for="country-select">Select a Country for 2019:</label>
+            <select id="country-select"></select>
+        </div>   
+    </div>
+    <div class="color-scale">
+        <h4>Color Scale</h4>
+        <div>
+            <div class="color-box" style="background-color: #fee5d9;"></div>
+            <span>Low Happiness Score</span>
+        </div>
+        <div>
+            <div class="color-box" style="background-color: #a50f15;"></div>
+            <span>High Happiness Score</span>
+        </div>
+    </div>
+    <div id="visualization" class="visualization"></div>
+    <script src="scene_one.js"></script>
+</body>
+</html>
