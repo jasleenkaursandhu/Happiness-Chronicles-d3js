@@ -28,7 +28,7 @@ function getColor(score) {
 // Load and process data
 Promise.all([
     d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"),
-    d3.csv("2019_mapped.csv")
+    d3.csv("cleanedData/2019_mapped.csv")
 ]).then(function([geojson, data]) {
     var dataMap = new Map();
     data.forEach(function(d) {

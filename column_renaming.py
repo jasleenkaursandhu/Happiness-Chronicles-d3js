@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Load the datasets
-df_2017 = pd.read_csv('2017_mapped.csv')
-df_2018 = pd.read_csv('2018_mapped.csv')
+df_2017 = pd.read_csv('cleanedData/2017_mapped.csv')
+df_2018 = pd.read_csv('cleanedData/2018_mapped.csv')
 
 # List of columns in the 2018 dataset
 columns_2018 = df_2018.columns.tolist()

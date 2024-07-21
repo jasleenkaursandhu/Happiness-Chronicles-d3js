@@ -3,10 +3,10 @@ var width = 1000, height = 1000;
 
 // Load and process data
 Promise.all([
-    d3.csv("2016_mapped.csv"),
-    d3.csv("2017_mapped.csv"),
-    d3.csv("2018_mapped.csv"),
-    d3.csv("2019_mapped.csv")
+    d3.csv("cleanedData/2016_mapped.csv"),
+    d3.csv("cleanedData/2017_mapped.csv"),
+    d3.csv("cleanedData/2018_mapped.csv"),
+    d3.csv("cleanedData/2019_mapped.csv")
 ]).then(function([data2016, data2017, data2018, data2019]) {
     // Merge datasets
     var mergedData = mergeData(data2016, data2017, data2018, data2019);
