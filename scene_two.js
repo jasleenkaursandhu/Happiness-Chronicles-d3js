@@ -97,7 +97,7 @@ Promise.all([
         svg.append("path")
             .datum(data)
             .attr("fill", "none")
-            .attr("stroke", "#F4C2C2")  // Set line color to red
+            .attr("stroke", "#F4C2C2")
             .attr("stroke-width", 2)
             .attr("d", line);
 
@@ -108,14 +108,14 @@ Promise.all([
             .attr("cx", d => x(d.year))
             .attr("cy", d => y(d.score))
             .attr("r", 5)
-            .attr("fill", "maroon")  // Set dot color to red
+            .attr("fill", "maroon")
             .on("mouseover", function(event, d) {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
                 tooltip.html("Year: " + d.year + "<br/>Score: " + d.score.toFixed(3))
-                    .style("left", (event.pageX - 60) + "px")  // Center the tooltip
-                    .style("top", (event.pageY - 70) + "px");  // Position above the point
+                    .style("left", (event.pageX - 60) + "px")
+                    .style("top", (event.pageY - 70) + "px");
             })
             .on("mouseout", function(d) {
                 tooltip.transition()

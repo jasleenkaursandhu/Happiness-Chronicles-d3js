@@ -1,5 +1,5 @@
 // Set up SVG and dimensions
-var width = 1000, height = 1000;
+var width = 600, height = 400;
 
 // Load and process data
 Promise.all([
@@ -93,7 +93,7 @@ Promise.all([
             // Clear previous chart
             d3.select("#factors-chart").html("");
 
-            var width = 500, height = 400; // Adjusted width and height
+            var width = 400, height = 400; // Adjusted width and height
 
             var margin = { top: 50, right: 50, bottom: 100, left: 100 }; // Adjusted margins
 
@@ -120,7 +120,12 @@ Promise.all([
             var y = d3.scaleLinear()
                 .range([height, 0])
                 .domain([0, d3.max(Object.values(factors).map(d => +d)) + 0.2]); // Adjusted domain for y-scale
-            
+
+            // Define color scale
+            var colorScale = d3.scaleLinear()
+                .domain([0, d3.max(Object.values(factors).map(d => +d))])
+                .range(["lightcoral", "darkred"]);
+
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x))
@@ -141,38 +146,84 @@ Promise.all([
                 .attr("y", d => y(+d[1]))
                 .attr("width", x.bandwidth())
                 .attr("height", d => height - y(+d[1]))
-                .style("fill", "maroon");
+                .style("fill", d => colorScale(+d[1])) // Adjusted fill color
+                .on("mouseover", function(event, d) {
+                    d3.select(this)
+                        .style();
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Year: ${year}<br>Country: ${country}<br>${d[0]}: ${d[1]}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    d3.select(this)
+                        .style();
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
 
-            svg.selectAll(".bar-label")
-                .data(Object.entries(factors))
-                .enter().append("text")
-                .attr("class", "bar-label")
-                .attr("x", d => x(d[0]) + x.bandwidth() / 2)
-                .attr("y", d => y(+d[1]) - 5)
-                .attr("text-anchor", "middle")
-                .text(d => (+d[1]).toFixed(2));
+            // Add tooltip
+            var tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            // Add color scale legend
+            var legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${width + 20}, 20)`);
+
+            var legendScale = d3.scaleLinear()
+                .domain([0, d3.max(Object.values(factors).map(d => +d))])
+                .range([0, 100]);
+
+            var legendAxis = d3.axisRight(legendScale)
+                .ticks(5);
+
+            legend.append("g")
+                .attr("class", "legend-axis")
+                .call(legendAxis);
+
+            var gradient = svg.append("defs")
+                .append("linearGradient")
+                .attr("id", "gradient")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "0%")
+                .attr("y2", "100%");
+
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "darkred")
+                .attr("stop-opacity", 1);
+
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "lightcoral")
+                .attr("stop-opacity", 1);
+
+            legend.append("rect")
+                .attr("width", 7)
+                .attr("height", 100)
+                .style("fill", "url(#gradient)");
         }
 
-        // Initial call to update factors chart with default selections
+        // Initial chart rendering
         updateFactorsChart(selectedYear, selectedCountry);
 
-        // Event listeners for dropdown changes
+        // Update chart on selection change
         yearSelect.on("change", function() {
-            selectedYear = d3.select(this).property("value");
+            selectedYear = this.value;
             updateFactorsChart(selectedYear, selectedCountry);
         });
 
         countrySelectScene3.on("change", function() {
-            selectedCountry = d3.select(this).property("value");
+            selectedCountry = this.value;
             updateFactorsChart(selectedYear, selectedCountry);
         });
     }
 
-    // Initialize scene three if the corresponding elements are present
-    if (document.querySelector("#scene3")) {
-        initSceneThree();
-    }
-
-}).catch(error => {
-    console.error("Error loading data:", error);
+    initSceneThree();
 });

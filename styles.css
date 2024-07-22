@@ -1,11 +1,89 @@
 body {
     font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.container {
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+#factors-chart {
+    display: block;
+    margin: 0 auto;
+}
+
+#chart {
+    display: block;
+    margin: 0 auto;
+}
+
+.select-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.select-container label {
+    margin-right: 10px;
+}
+
+#year-select, #country-select-scene3 {
+    padding: 5px;
+}
+
+#country-select {
+    padding: 5px;
 }
 
 #visualization {
-    width: 300px;
-    height: 600px;
-    margin: auto;
+    display: block;
+    margin: 0 auto;
 }
 
+.country {
+    stroke: #fff;
+    stroke-width: 0.5;
+}
 
+.tooltip {
+    position: absolute;
+    background: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    pointer-events: none;
+}
+
+.color-scale {
+    margin-top: 20px;
+    text-align: left; 
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.color-scale div {
+    display: flex;
+    align-items: center;
+}
+
+.color-box {
+    width: 50px;
+    height: 20px;
+    margin-right: 10px;
+}

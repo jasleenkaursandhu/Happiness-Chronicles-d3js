@@ -1,5 +1,5 @@
 // Set up SVG and dimensions
-var width = 960, height = 1000;
+var width = 960, height = 600;
 
 var svg = d3.select("#visualization")
     .append("svg")
@@ -16,11 +16,9 @@ var path = d3.geoPath().projection(projection);
 
 // Function to generate random shades of red based on score value
 function getColor(score) {
-    // Choose a shade of red based on the score.
-    // Darker red shades for higher scores.
     var redScale = d3.scaleLinear()
         .domain([0, 10])
-        .range(["#fee5d9", "#a50f15"]); // Light red to dark red
+        .range(["#fee5d9", "#a50f15"]);
 
     return redScale(score);
 }
@@ -90,6 +88,45 @@ Promise.all([
         var country = d3.select(this).property("value");
         updateMap(country === "All Countries" ? "" : country);
     });
+
+    // Add color scale legend
+    var legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(${width - 100}, 20)`);
+
+    var legendScale = d3.scaleLinear()
+        .domain([10, 0])
+        .range([0, 100]);
+
+    var legendAxis = d3.axisRight(legendScale)
+        .ticks(5);
+
+    legend.append("g")
+        .attr("class", "legend-axis")
+        .call(legendAxis);
+
+    var gradient = svg.append("defs")
+        .append("linearGradient")
+        .attr("id", "gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "0%")
+        .attr("y2", "100%");
+
+    gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#a50f15")
+        .attr("stop-opacity", 1);
+
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#fee5d9")
+        .attr("stop-opacity", 1);
+
+    legend.append("rect")
+        .attr("width", 7)
+        .attr("height", 100)
+        .style("fill", "url(#gradient)");
 
 }).catch(error => {
     console.error("Error loading data:", error);

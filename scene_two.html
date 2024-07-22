@@ -4,65 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scene Two: Happiness Score Differences</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            width: 600px;
-            margin: 20px auto;
-            text-align: center; /* Center align content */
-        }
-        h2 {
-            margin-top: 30px;
-            margin-bottom: 20px;
-        }
-        .chart {
-            width: 100%;
-            height: 400px;
-            margin-top: 20px;
-        }
-        .form-group {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .label {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        select {
-            padding: 5px;
-            font-size: 16px;
-        }
-        .bar {
-            fill: steelblue;
-        }
-        .bar:hover {
-            fill: #4682b4;
-        }
-        .axis {
-            font-size: 14px;
-        }
-        .tooltip {
-            position: absolute;
-            text-align: center;
-            width: 120px;
-            padding: 5px;
-            font: 12px sans-serif;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            pointer-events: none;
-            opacity: 0;  /* Initially invisible */
-            transition: opacity 0.2s;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Comparing Happiness Score for years (2016 - 2019)</h1>
+        <h1>Comparing Happiness Score for the years (2016 - 2019)</h1>
         
         <div class="form-group">
             <label for="country-select">Select a Country:</label>
