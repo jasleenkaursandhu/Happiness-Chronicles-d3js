@@ -84,11 +84,15 @@ Promise.all([
         // Default selections
         var selectedYear = years[0];
         var selectedCountry = countries[0];
+        var selectedFactors = Array.from(document.querySelectorAll('.factor-checkbox:checked')).map(cb => cb.value);
 
-        function updateFactorsChart(year, country) {
+        function updateFactorsChart(year, country, factorsToShow) {
             var selectedData = mergedData.find(d => d.Country === country);
             var factors = selectedData["Factors_" + year];
             var score = selectedData["Score_" + year];
+
+            // Filter factors based on selected checkboxes
+            var filteredFactors = Object.entries(factors).filter(([key]) => factorsToShow.includes(key));
 
             // Clear previous chart
             d3.select("#factors-chart").html("");
@@ -115,115 +119,57 @@ Promise.all([
             var x = d3.scaleBand()
                 .range([0, width])
                 .padding(0.2) // Adjusted padding
-                .domain(Object.keys(factors));
+                .domain(filteredFactors.map(d => d[0]));
 
             var y = d3.scaleLinear()
                 .range([height, 0])
-                .domain([0, d3.max(Object.values(factors).map(d => +d)) + 0.2]); // Adjusted domain for y-scale
+                .domain([0, d3.max(filteredFactors.map(d => +d[1])) + 0.2]); // Adjusted domain for y-scale
 
             // Define color scale
             var colorScale = d3.scaleLinear()
-                .domain([0, d3.max(Object.values(factors).map(d => +d))])
+                .domain([0, d3.max(filteredFactors.map(d => +d[1]))])
                 .range(["lightcoral", "darkred"]);
 
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x))
                 .selectAll("text")
-                .attr("transform", "rotate(-45)") // Rotate x-axis labels
-                .style("text-anchor", "end")
-                .attr("dx", "0.2em")
-                .attr("dy", "0.5em");
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end");
 
             svg.append("g")
                 .call(d3.axisLeft(y));
 
             svg.selectAll(".bar")
-                .data(Object.entries(factors))
+                .data(filteredFactors)
                 .enter().append("rect")
                 .attr("class", "bar")
                 .attr("x", d => x(d[0]))
-                .attr("y", d => y(+d[1]))
                 .attr("width", x.bandwidth())
+                .attr("y", d => y(+d[1]))
                 .attr("height", d => height - y(+d[1]))
-                .style("fill", d => colorScale(+d[1])) // Adjusted fill color
-                .on("mouseover", function(event, d) {
-                    d3.select(this)
-                        .style();
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                    tooltip.html(`Year: ${year}<br>Country: ${country}<br>${d[0]}: ${d[1]}`)
-                        .style("left", (event.pageX + 5) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", function(d) {
-                    d3.select(this)
-                        .style();
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
-                });
-
-            // Add tooltip
-            var tooltip = d3.select("body").append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0);
-
-            // Add color scale legend
-            var legend = svg.append("g")
-                .attr("class", "legend")
-                .attr("transform", `translate(${width + 20}, 20)`);
-
-            var legendScale = d3.scaleLinear()
-                .domain([0, d3.max(Object.values(factors).map(d => +d))])
-                .range([0, 100]);
-
-            var legendAxis = d3.axisRight(legendScale)
-                .ticks(5);
-
-            legend.append("g")
-                .attr("class", "legend-axis")
-                .call(legendAxis);
-
-            var gradient = svg.append("defs")
-                .append("linearGradient")
-                .attr("id", "gradient")
-                .attr("x1", "0%")
-                .attr("y1", "0%")
-                .attr("x2", "0%")
-                .attr("y2", "100%");
-
-            gradient.append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", "darkred")
-                .attr("stop-opacity", 1);
-
-            gradient.append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", "lightcoral")
-                .attr("stop-opacity", 1);
-
-            legend.append("rect")
-                .attr("width", 7)
-                .attr("height", 100)
-                .style("fill", "url(#gradient)");
+                .attr("fill", d => colorScale(+d[1]));
         }
 
-        // Initial chart rendering
-        updateFactorsChart(selectedYear, selectedCountry);
+        updateFactorsChart(selectedYear, selectedCountry, selectedFactors);
 
-        // Update chart on selection change
         yearSelect.on("change", function() {
             selectedYear = this.value;
-            updateFactorsChart(selectedYear, selectedCountry);
+            updateFactorsChart(selectedYear, selectedCountry, selectedFactors);
         });
 
         countrySelectScene3.on("change", function() {
             selectedCountry = this.value;
-            updateFactorsChart(selectedYear, selectedCountry);
+            updateFactorsChart(selectedYear, selectedCountry, selectedFactors);
+        });
+
+        d3.selectAll('.factor-checkbox').on("change", function() {
+            selectedFactors = Array.from(document.querySelectorAll('.factor-checkbox:checked')).map(cb => cb.value);
+            updateFactorsChart(selectedYear, selectedCountry, selectedFactors);
         });
     }
 
     initSceneThree();
+}).catch(function(error) {
+    console.log(error);
 });
