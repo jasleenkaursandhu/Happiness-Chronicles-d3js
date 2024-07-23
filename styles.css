@@ -87,3 +87,13 @@ h1 {
     height: 20px;
     margin-right: 10px;
 }
+
+#year-slider, #year-slider-end {
+    width: 100%;
+}
+
+#slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}

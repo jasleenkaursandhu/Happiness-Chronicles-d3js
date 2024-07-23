@@ -47,3 +47,51 @@ This project presents an interactive narrative visualization based on the World 
 
 
 
+Annotations
+Annotations are used for messaging and drawing attention to specific aspects of the data within each scene. In your project, annotations could include:
+
+Scene One:
+
+Tooltips that display country names and happiness scores when hovering over countries on the map.
+Labels indicating high and low happiness score regions on the color scale legend.
+Scene Two:
+
+Tooltips that show detailed information about each bar (e.g., country name, happiness score, and other metrics) when hovering over bars.
+Titles and labels explaining the context of the chart (e.g., "Happiness Scores in 2019").
+Scene Three:
+
+Similar tooltips and labels as in Scene Two, adapted to the specific data being visualized.
+Any additional annotations that highlight significant trends or outliers in the data.
+Parameters
+Parameters are the variables used to control the scenes and the elements within the charts. In your project, these parameters might include:
+
+Scene One:
+
+selectedCountry: The country selected from the dropdown menu to highlight on the map.
+happinessScore: The happiness score used to determine the color of each country on the map.
+year: The year of the data being displayed (2019 in this case).
+Scene Two:
+
+selectedYear: The year for which happiness scores are being displayed in the bar chart.
+happinessScores: The array of happiness scores for the selected year.
+highlightedCountry: The country being highlighted (if any) when hovering over bars.
+Scene Three:
+
+comparisonMetric: The metric being compared across countries (e.g., GDP per capita, social support).
+happinessScores: The happiness scores used in the comparison.
+highlightedCountry: The country being highlighted when hovering over bars or other elements.
+Triggers
+Triggers are the actions that cause parameters to change state, leading to updates in the visualization. In your project, triggers might include:
+
+Scene One:
+
+Dropdown Selection: When a user selects a country from the dropdown menu, the selectedCountry parameter changes, triggering the map to update and highlight the selected country.
+Scene Two:
+
+Hovering Over Bars: When a user hovers over a bar, the highlightedCountry parameter changes, triggering tooltips to display detailed information about that country.
+Year Selection: If there is a mechanism to change the year being displayed (e.g., a slider), changing the year would update the selectedYear parameter and refresh the chart with data for the new year.
+Scene Three:
+
+Metric Selection: If there is a way to change the comparison metric (e.g., a dropdown or buttons), selecting a different metric would update the comparisonMetric parameter and refresh the chart to reflect the new comparison.
+Hovering Over Elements: Similar to Scene Two, hovering over chart elements would change the highlightedCountry parameter, triggering tooltips or other annotations.
+By carefully defining and implementing these components, you can create a coherent and engaging narrative visualization that guides users through your data with clear messaging and interactive elements.

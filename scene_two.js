@@ -43,9 +43,16 @@ Promise.all([
     // Default selected country (first in the list)
     var selectedCountry = countries[0];
 
-    // Function to update line chart based on selected country
-    function updateLineChart(country) {
+    // Function to update line chart based on selected country and year range
+    function updateLineChart(country, yearStart, yearEnd) {
         var selectedData = mergedData.find(d => d.Country === country);
+
+        // Filter data based on year range
+        var data = [];
+        if (yearStart <= 2016 && yearEnd >= 2016) data.push({ year: "2016", score: selectedData.Score_2016 });
+        if (yearStart <= 2017 && yearEnd >= 2017) data.push({ year: "2017", score: selectedData.Score_2017 });
+        if (yearStart <= 2018 && yearEnd >= 2018) data.push({ year: "2018", score: selectedData.Score_2018 });
+        if (yearStart <= 2019 && yearEnd >= 2019) data.push({ year: "2019", score: selectedData.Score_2019 });
 
         // Clear previous chart
         d3.select("#chart").html("");
@@ -61,26 +68,19 @@ Promise.all([
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         var x = d3.scalePoint()
-            .domain(["2016", "2017", "2018", "2019"])
+            .domain(data.map(d => d.year))
             .range([0, width]);
 
         var y = d3.scaleLinear()
             .domain([
-                d3.min([selectedData.Score_2016, selectedData.Score_2017, selectedData.Score_2018, selectedData.Score_2019]) - 0.1,
-                d3.max([selectedData.Score_2016, selectedData.Score_2017, selectedData.Score_2018, selectedData.Score_2019]) + 0.1
+                d3.min(data, d => d.score) - 0.1,
+                d3.max(data, d => d.score) + 0.1
             ])
             .range([height, 0]);
 
         var line = d3.line()
             .x(d => x(d.year))
             .y(d => y(d.score));
-
-        var data = [
-            { year: "2016", score: selectedData.Score_2016 },
-            { year: "2017", score: selectedData.Score_2017 },
-            { year: "2018", score: selectedData.Score_2018 },
-            { year: "2019", score: selectedData.Score_2019 }
-        ];
 
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
@@ -129,17 +129,29 @@ Promise.all([
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
             .style("text-decoration", "underline")
-            .text("Happiness Score Comparison (2016 - 2019) for " + country);
+            .text("Happiness Score Comparison (" + yearStart + " - " + yearEnd + ") for " + country);
     }
 
-    // Initial call to update line chart with default selected country
-    updateLineChart(selectedCountry);
+    // Initial call to update line chart with default selected country and year range
+    updateLineChart(selectedCountry, 2016, 2019);
 
     // Event listener for dropdown change
     select.on("change", function() {
         var country = d3.select(this).property("value");
-        updateLineChart(country);
+        var yearStart = +document.getElementById("year-slider").value;
+        var yearEnd = +document.getElementById("end-year-range").textContent;
+        updateLineChart(country, yearStart, yearEnd);
     });
+
+    // Event listener for year slider change
+    d3.select("#year-slider").on("input", function() {
+        var yearStart = +this.value;
+        var yearEnd = +document.getElementById("end-year-range").textContent;
+        d3.select("#year-range").text(yearStart);
+        updateLineChart(selectedCountry, yearStart, yearEnd);
+    });
+
+    d3.select("#end-year-range").text(2019);
 
 }).catch(error => {
     console.error("Error loading data:", error);

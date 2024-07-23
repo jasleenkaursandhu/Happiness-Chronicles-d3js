@@ -9,11 +9,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>Comparing Happiness Score for the years (2016 - 2019)</h1>
+        <h1>Comparing Happiness Score for Selected Years</h1>
         
         <div class="form-group">
             <label for="country-select">Select a Country:</label>
             <select id="country-select"></select>
+        </div>
+        
+        <div class="form-group">
+            <label for="year-slider">Select Year Range:</label>
+            <input type="range" id="year-slider" min="2016" max="2019" step="1" value="2016" />
+            <span id="year-range">2016</span> - <span id="end-year-range">2019</span>
         </div>
         
         <svg id="chart"></svg>
