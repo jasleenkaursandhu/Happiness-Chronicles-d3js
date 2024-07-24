@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Happiness Chronicles: Exploring the Key Drivers of Global Well-Being</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fdf0f7;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #510b46;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            border-bottom: 1px solid #ccc;
+        }
+        .tabs button {
+            background: none;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0;
+            flex: 1;
+        }
+        .tabs button:hover, .tabs button.active {
+            background: #66255c;
+            color: white;
+        }
+        .content {
+            padding: 2rem;
+        }
+        .description {
+            margin-bottom: 2rem;
+            background: #f0f0f0;
+            padding: 1rem;
+            border-left: 5px solid #4d163c;
+        }
+        iframe {
+            border: none;
+            width: 100%;
+            height: 800px;
+        }
+    </style>
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById("defaultOpen").click();
+        });
+    </script>
+</head>
+<body>
+
+<header>
+    <h1>The Happiness Chronicles: Exploring the Key Drivers of Global Well-Being</h1>
+</header>
+
+<div class="tabs">
+    <button class="tablinks" onclick="openTab(event, 'SceneOne')" id="defaultOpen">Scene One: Global Happiness Overview</button>
+    <button class="tablinks" onclick="openTab(event, 'SceneTwo')">Scene Two: Happiness Score Trends (2016-2019)</button>
+    <button class="tablinks" onclick="openTab(event, 'SceneThree')">Scene Three: Factors Influencing Happiness Score</button>
+</div>
+
+<div class="content">
+    <div class="description">
+        <h2>Welcome to the Happiness Chronicles</h2>
+        <p>This interactive narrative visualization allows you to explore the World Happiness Report data in three scenes:</p>
+        <ul>
+            <li><strong>Scene One:</strong> A global overview of happiness scores.</li>
+            <li><strong>Scene Two:</strong> Trends in happiness scores from 2016 to 2019.</li>
+            <li><strong>Scene Three:</strong> An in-depth look at factors influencing happiness scores for selected countries and years.</li>
+        </ul>
+        <p>Use the tabs above to navigate between scenes and explore the data. Each scene provides unique insights into global well-being, trends over time, and the key drivers of happiness.</p>
+    </div>
+
+    <div id="SceneOne" class="tabcontent">
+        <iframe src="scene_one.html"></iframe>
+    </div>
+
+    <div id="SceneTwo" class="tabcontent">
+        <iframe src="scene_two.html"></iframe>
+    </div>
+
+    <div id="SceneThree" class="tabcontent">
+        <iframe src="scene_three.html"></iframe>
+    </div>
+</div>
+
+</body>
+</html>
