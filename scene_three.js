@@ -127,28 +127,91 @@ Promise.all([
 
             // Define color scale
             var colorScale = d3.scaleLinear()
-                .domain([0, d3.max(filteredFactors.map(d => +d[1]))])
-                .range(["lightcoral", "darkred"]);
+            .domain([0, d3.max(filteredFactors.map(d => +d[1]))])
+            .range(["lightcoral", "darkred"]);
+
+            // Add color scale legend
+            var legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${width + 20}, 20)`);
+
+            var legendScale = d3.scaleLinear()
+                .domain([d3.max(Object.values(filteredFactors).map(d => +d)), 0])
+                .range([0, 100]);
+
+            var legendAxis = d3.axisRight(legendScale)
+                .ticks(5);
+
+            legend.append("g")
+                .attr("class", "legend-axis")
+                .call(legendAxis);
+
+            var gradient = svg.append("defs")
+                .append("linearGradient")
+                .attr("id", "gradient")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "0%")
+                .attr("y2", "100%");
+
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "darkred")
+                .attr("stop-opacity", 1);
+
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "lightcoral")
+                .attr("stop-opacity", 1);
+
+            legend.append("rect")
+                .attr("width", 20)
+                .attr("height", 100)
+                .style("fill", "url(#gradient)");
 
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x))
                 .selectAll("text")
-                .attr("transform", "translate(-10,0)rotate(-45)")
-                .style("text-anchor", "end");
+                .attr("transform", "rotate(-45)") // Rotate x-axis labels
+                .style("text-anchor", "end")
+                .attr("dx", "0.2em")
+                .attr("dy", "0.5em");
 
             svg.append("g")
                 .call(d3.axisLeft(y));
+
+            // Tooltip for showing data values on hover
+            var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
 
             svg.selectAll(".bar")
                 .data(filteredFactors)
                 .enter().append("rect")
                 .attr("class", "bar")
                 .attr("x", d => x(d[0]))
-                .attr("width", x.bandwidth())
                 .attr("y", d => y(+d[1]))
+                .attr("width", x.bandwidth())
                 .attr("height", d => height - y(+d[1]))
-                .attr("fill", d => colorScale(+d[1]));
+                .style("fill", d => colorScale(+d[1])) // Adjusted fill color
+                .on("mouseover", function(event, d) {
+                    d3.select(this)
+                        .style("fill", "steelblue");
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Year: ${year}<br>Country: ${country}<br>${d[0]}: ${d[1]}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(event, d) {
+                    d3.select(this)
+                        .style("fill", colorScale(+d[1])); // Access the correct data value
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
         }
 
         updateFactorsChart(selectedYear, selectedCountry, selectedFactors);
@@ -173,3 +236,62 @@ Promise.all([
 }).catch(function(error) {
     console.log(error);
 });
+
+
+
+
+// Define color scale
+var colorScale = d3.scaleLinear()
+    .domain([0, d3.max(filteredFactors.map(d => +d[1]))])
+    .range(["lightcoral", "darkred"]);
+
+// Draw the legend
+var legend = svg.append("g")
+    .attr("transform", `translate(${width + 20}, 20)`);
+
+legend.append("text")
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("font-size", "12px")
+    .text("Factor Value");
+
+var legendScale = d3.scaleLinear()
+    .domain(colorScale.domain())
+    .range([0, 100]);
+
+var legendAxis = d3.axisRight(legendScale)
+    .ticks(5)
+    .tickFormat(d3.format(".2f"));
+
+legend.append("g")
+    .attr("transform", "translate(30, 0)")
+    .call(legendAxis);
+
+legend.selectAll(".legend-rect")
+    .data(d3.range(0, 1.01, 0.1))
+    .enter().append("rect")
+    .attr("x", 0)
+    .attr("y", d => legendScale(d * d3.max(filteredFactors.map(d => +d[1]))))
+    .attr("width", 20)
+    .attr("height", 10)
+    .attr("fill", d => colorScale(d * d3.max(filteredFactors.map(d => +d[1]))));
+
+// // Tooltip for showing data values on hover
+// var tooltip = d3.select("body").append("div")
+//     .attr("class", "tooltip")
+//     .style("opacity", 0);
+
+// svg.selectAll(".bar")
+//     .on("mouseover", function(event, d) {
+//         tooltip.transition()
+//             .duration(200)
+//             .style("opacity", .9);
+//         tooltip.html(d[0] + "<br/>" + d[1])
+//             .style("left", (event.pageX) + "px")
+//             .style("top", (event.pageY - 28) + "px");
+//     })
+//     .on("mouseout", function(d) {
+//         tooltip.transition()
+//             .duration(500)
+//             .style("opacity", 0);
+//     });
