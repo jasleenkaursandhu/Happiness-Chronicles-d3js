@@ -1,30 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="trendApp">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scene Two: Happiness Score Differences</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
 </head>
-<body>
+<body ng-controller="TrendController">
     <div class="container">
         <h1>Comparing Happiness Score for Selected Years</h1>
         
+        <div style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff;">
+            <strong>Current Selection:</strong> 
+            Country: {{selectedCountry || 'None Selected'}} | 
+            Year Range: {{yearStart}} - 2019
+        </div>
+        
         <div class="form-group">
             <label for="country-select">Select a Country:</label>
-            <select id="country-select"></select>
+            <select id="country-select" ng-model="selectedCountry" ng-change="updateChart()"></select>
         </div>
         
         <div class="form-group">
             <label for="year-slider">Select Year Range:</label>
-            <input type="range" id="year-slider" min="2016" max="2019" step="1" value="2016" />
-            <span id="year-range">2016</span> - <span id="end-year-range">2019</span>
+            <input type="range" id="year-slider" min="2016" max="2019" step="1" 
+                   ng-model="yearStart" ng-change="updateChart()" />
+            <span>{{yearStart}}</span> - <span>2019</span>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button ng-click="navigateToScene('scene_one.html')" style="margin-right: 10px; padding: 8px 16px;">
+                Go to Scene 1 (Map)
+            </button>
+            <button ng-click="navigateToScene('scene_three.html')" style="padding: 8px 16px;">
+                Go to Scene 3 (Factors)
+            </button>
         </div>
         
         <svg id="chart"></svg>
     </div>
 
     <script src="scene_two.js"></script>
+    
+    <script>
+        angular.module('trendApp', [])
+        .controller('TrendController', function($scope) {
+            $scope.selectedCountry = '';
+            $scope.yearStart = 2016;
+            
+            $scope.updateChart = function() {
+                if (window.updateLineChart) {
+                    window.updateLineChart($scope.selectedCountry, $scope.yearStart, 2019);
+                }
+            };
+            
+            $scope.navigateToScene = function(scenePage) {
+                window.location.href = scenePage;
+            };
+            
+            window.angularTrendScope = $scope;
+        });
+    </script>
 </body>
 </html>

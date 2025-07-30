@@ -1,27 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="happinessApp">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scene One: World Happiness Map</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body ng-controller="HappinessController">
     <div class="container">
         <h1>Overview of World Happiness Scores</h1>
+        
+        <div style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff;">
+            <strong>Current Selection:</strong> 
+            Year: {{selectedYear}} | 
+            Country: {{selectedCountry || 'All Countries'}}
+        </div>
+        
         <div class="form-group select-container">
             <label for="year-select">Select Year:</label>
-            <select id="year-select"></select>
+            <select id="year-select" ng-model="selectedYear" ng-change="updateYear()"></select>
         </div>
         <div class="form-group select-container">
             <label for="country-select">Select a Country:</label>
-            <select id="country-select"></select>
+            <select id="country-select" ng-model="selectedCountry" ng-change="updateCountry()"></select>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button ng-click="navigateToScene('scene_two.html')" style="margin-right: 10px; padding: 8px 16px;">
+                Go to Scene 2 (Trends)
+            </button>
+            <button ng-click="navigateToScene('scene_three.html')" style="padding: 8px 16px;">
+                Go to Scene 3 (Factors)
+            </button>
         </div>
     </div>
     <div class="container">
         <div id="visualization" class="visualization"></div>
     </div>
+    
     <script src="scene_one.js"></script>
+    
+    <script>
+        angular.module('happinessApp', [])
+        .controller('HappinessController', function($scope) {
+            $scope.selectedYear = '2019';
+            $scope.selectedCountry = '';
+            
+            $scope.updateYear = function() {
+                if (window.updateMapForYear) {
+                    window.updateMapForYear($scope.selectedYear);
+                }
+            };
+            
+            $scope.updateCountry = function() {
+                if (window.highlightSelectedCountry) {
+                    window.highlightSelectedCountry($scope.selectedCountry);
+                }
+            };
+            
+            $scope.navigateToScene = function(scenePage) {
+                window.location.href = scenePage;
+            };
+            
+            window.angularScope = $scope;
+        });
+    </script>
 </body>
 </html>
